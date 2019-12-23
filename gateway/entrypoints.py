@@ -5,7 +5,7 @@ from nameko.exceptions import safe_for_serialization, BadRequest
 from nameko.web.handlers import HttpRequestHandler
 from werkzeug import Response
 
-from gateway.exceptions.users_exceptions import UserNotAuthenticated, UserAlreadyExists
+from gateway.exceptions.users_exceptions import UserNotAuthorised, UserAlreadyExists
 
 
 class HttpEntrypoint(HttpRequestHandler):
@@ -18,7 +18,7 @@ class HttpEntrypoint(HttpRequestHandler):
         ValidationError: (400, 'VALIDATION_ERROR'),  # is always added as expected
 
         BadRequest: (400, 'BAD_REQUEST'),
-        UserNotAuthenticated: (404, 'USER_NOT_AUTHENTICATED'),
+        UserNotAuthorised: (401, 'USER_NOT_AUTHORISED'),
         UserAlreadyExists: (409, 'USER_ALREADY_EXISTS')
     }
 

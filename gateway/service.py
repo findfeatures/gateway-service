@@ -4,7 +4,7 @@ from nameko.rpc import RpcProxy
 from werkzeug import Response
 from gateway.entrypoints import http
 
-from gateway.exceptions.users_exceptions import UserNotAuthenticated, UserAlreadyExists
+from gateway.exceptions.users_exceptions import UserNotAuthorised, UserAlreadyExists
 from gateway import schemas
 
 
@@ -22,7 +22,7 @@ class GatewayService:
 
     @http(
         "POST", "/user/auth",
-        expected_exceptions=(UserNotAuthenticated, )
+        expected_exceptions=(UserNotAuthorised, )
     )
     def users_auth(self, request):
         """
@@ -30,12 +30,9 @@ class GatewayService:
         a valid JWT if the user is successfully logged in.
         """
         user_auth_details = schemas.UserAuthRequest().load(json.loads(request.data))
-        is_correct_password, jwt_result = self.users_rpc.auth_user(
+        jwt_result = self.users_rpc.auth_user(
             user_auth_details['email'], user_auth_details['password']
         )
-
-        if not is_correct_password:
-            raise UserNotAuthenticated('User does not have permission for that')
 
         return Response(
             schemas.UserAuthResponse().dumps(jwt_result),

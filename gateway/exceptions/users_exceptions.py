@@ -1,24 +1,12 @@
-from nameko.exceptions import registry
+
+from gateway.exceptions.base import remote_error
 
 
-def remote_error(exc_path):
-    """
-    Decorator that registers remote exception with matching ``exc_path``
-    to be deserialized to decorated exception instance, rather than
-    wrapped in ``RemoteError``.
-    """
-
-    def wrapper(exc_type):
-        registry[exc_path] = exc_type
-        return exc_type
-
-    return wrapper
-
-
-class UserNotAuthenticated(Exception):
+@remote_error('users.exceptions.UserNotAuthorised')
+class UserNotAuthorised(Exception):
     pass
 
 
-@remote_error('users.exceptions.ValueError')
+@remote_error('users.exceptions.UserAlreadyExists')
 class UserAlreadyExists(Exception):
     pass
