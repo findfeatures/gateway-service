@@ -7,6 +7,7 @@ import yaml
 from nameko.cli.main import setup_yaml_parser
 from nameko.testing.services import replace_dependencies
 
+
 @pytest.fixture(scope="session")
 def project_root():
     return os.path.dirname(os.path.dirname(__file__))

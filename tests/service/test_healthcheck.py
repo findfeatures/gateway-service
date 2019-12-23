@@ -1,5 +1,5 @@
-from nameko.containers import ServiceContainer
 from gateway.service import GatewayService
+from nameko.containers import ServiceContainer
 
 
 def test_health_check(config, web_session):

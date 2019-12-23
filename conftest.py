@@ -50,4 +50,3 @@ def create_service(container_factory):
         return ServiceMeta(container, *mocked_dependencies, **dependency_map)
 
     return create
-
