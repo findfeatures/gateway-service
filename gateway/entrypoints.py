@@ -21,7 +21,7 @@ class HttpEntrypoint(HttpRequestHandler):
     mapped_errors = {
         ValidationError: (400, "VALIDATION_ERROR"),  # is always added as expected
         BadRequest: (400, "BAD_REQUEST"),
-        UserNotAuthorised: (401, "USER_NOT_AUTHORISED"),
+        UserNotAuthorised: (401, "USER_NOT_AUTHORISED"),  # is always added as expected
         UserAlreadyExists: (409, "USER_ALREADY_EXISTS"),
     }
 
@@ -46,8 +46,10 @@ class HttpEntrypoint(HttpRequestHandler):
     def response_from_exception(self, exc):
         status_code, error_code = 500, "UNEXPECTED_ERROR"
 
-        if isinstance(exc, self.expected_exceptions) or isinstance(
-            exc, ValidationError
+        if (
+            isinstance(exc, self.expected_exceptions)
+            or isinstance(exc, ValidationError)
+            or isinstance(exc, UserNotAuthorised)
         ):
             if type(exc) in self.mapped_errors:
                 status_code, error_code = self.mapped_errors[type(exc)]

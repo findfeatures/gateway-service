@@ -23,6 +23,7 @@ setuptools.setup(
         "udatetime==0.0.16",
         "marshmallow==3.0.1",
         "python-dateutil==2.8.0",
+        "PyJWT==1.7.1",
     ],
     extras_require={
         "dev": [

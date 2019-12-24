@@ -4,6 +4,7 @@ import time
 from gateway import schemas
 from gateway.entrypoints import http
 from gateway.exceptions.users_exceptions import UserAlreadyExists, UserNotAuthorised
+from gateway.utils import jwt_required
 from nameko.rpc import RpcProxy
 from werkzeug import Response
 
@@ -21,12 +22,13 @@ class GatewayService:
     def health_check(self, request):
         return 200, "OK"
 
-    @http("POST", "/user/auth", expected_exceptions=(UserNotAuthorised,))
+    @http("POST", "/user/auth")
     def users_auth(self, request):
         """
         Provides authentication for a user, will return
         a valid JWT if the user is successfully logged in.
         """
+        time.sleep(2)
         user_auth_details = schemas.UserAuthRequest().load(json.loads(request.data))
         jwt_result = self.users_rpc.auth_user(
             user_auth_details["email"], user_auth_details["password"]

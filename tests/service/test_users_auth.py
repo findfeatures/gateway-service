@@ -1,7 +1,8 @@
 import json
-from mock import ANY, call
+
 from gateway.exceptions.users_exceptions import UserNotAuthorised
 from gateway.service import GatewayService
+from mock import ANY, call
 from nameko.containers import ServiceContainer
 from nameko.testing.services import replace_dependencies
 
@@ -51,7 +52,4 @@ def test_users_auth_incorrect_schema(config, web_session):
     response = web_session.post("/user/auth", data=json.dumps({}))
 
     assert response.status_code == 400
-    assert response.json() == {
-        "error": "VALIDATION_ERROR",
-        "message": ANY,
-    }
+    assert response.json() == {"error": "VALIDATION_ERROR", "message": ANY}
