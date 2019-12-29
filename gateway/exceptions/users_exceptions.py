@@ -9,3 +9,8 @@ class UserNotAuthorised(Exception):
 @remote_error("users.exceptions.users.UserAlreadyExists")
 class UserAlreadyExists(Exception):
     pass
+
+
+@remote_error("users.exceptions.users.UserNotVerified")
+class UserNotVerified(Exception):
+    pass

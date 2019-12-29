@@ -1,8 +1,7 @@
 import jwt
 import pytest
-
-from gateway.utils import jwt_required
 from gateway.exceptions.users_exceptions import UserNotAuthorised
+from gateway.utils import jwt_required
 from mock import Mock
 from nameko import config
 

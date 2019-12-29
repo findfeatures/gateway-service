@@ -3,7 +3,11 @@ import time
 
 from gateway import schemas
 from gateway.entrypoints import http
-from gateway.exceptions.users_exceptions import UserAlreadyExists, UserNotAuthorised
+from gateway.exceptions.users_exceptions import (
+    UserAlreadyExists,
+    UserNotAuthorised,
+    UserNotVerified,
+)
 from gateway.utils import jwt_required
 from nameko.rpc import RpcProxy
 from werkzeug import Response
@@ -22,7 +26,7 @@ class GatewayService:
     def health_check(self, request):
         return 200, "OK"
 
-    @http("POST", "/user/auth")
+    @http("POST", "/user/auth", expected_exceptions=(UserNotVerified,))
     def users_auth(self, request):
         """
         Provides authentication for a user, will return
@@ -70,6 +74,8 @@ class GatewayService:
         """
         Allows verifying a users token from signup.
         """
+        time.sleep(1)
+
         user_token_details = schemas.UserTokenRequest().load(json.loads(request.data))
 
         self.users_rpc.verify_user(

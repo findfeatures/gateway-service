@@ -2,7 +2,11 @@ import json
 from functools import partial
 from types import FunctionType
 
-from gateway.exceptions.users_exceptions import UserAlreadyExists, UserNotAuthorised
+from gateway.exceptions.users_exceptions import (
+    UserAlreadyExists,
+    UserNotAuthorised,
+    UserNotVerified,
+)
 from marshmallow import ValidationError
 from nameko.exceptions import BadRequest, safe_for_serialization
 from nameko.extensions import register_entrypoint
@@ -23,6 +27,7 @@ class HttpEntrypoint(HttpRequestHandler):
         BadRequest: (400, "BAD_REQUEST"),
         UserNotAuthorised: (401, "USER_NOT_AUTHORISED"),  # is always added as expected
         UserAlreadyExists: (409, "USER_ALREADY_EXISTS"),
+        UserNotVerified: (418, "USER_NOT_VERIFIED"),
     }
 
     def __init__(self, method, url, expected_exceptions=(), **kwargs):

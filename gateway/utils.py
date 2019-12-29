@@ -3,9 +3,9 @@ from functools import wraps
 
 import jwt
 from gateway.exceptions.users_exceptions import UserNotAuthorised
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from nameko import config
 
-from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 
 logger = logging.getLogger(__name__)
 
