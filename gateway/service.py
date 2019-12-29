@@ -50,9 +50,7 @@ class GatewayService:
         if user_exists:
             raise UserAlreadyExists()
 
-        return Response(
-            mimetype="application/json"
-        )
+        return Response(mimetype="application/json")
 
     @http("POST", "/user", expected_exceptions=(UserAlreadyExists,))
     def users_create(self, request):
@@ -64,5 +62,18 @@ class GatewayService:
         create_user_details = schemas.CreateUserRequest().load(json.loads(request.data))
 
         self.users_rpc.create_user(create_user_details)
+
+        return Response(mimetype="application/json")
+
+    @http("POST", "/user-token", expected_exceptions=(UserNotAuthorised,))
+    def users_token(self, request):
+        """
+        Allows verifying a users token from signup.
+        """
+        user_token_details = schemas.UserTokenRequest().load(json.loads(request.data))
+
+        self.users_rpc.verify_user(
+            user_token_details["email"], user_token_details["token"]
+        )
 
         return Response(mimetype="application/json")

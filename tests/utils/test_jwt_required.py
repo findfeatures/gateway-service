@@ -8,7 +8,6 @@ from nameko import config
 
 
 class FakeService:
-
     @jwt_required()
     def fake_function(self, request):
         return "I worked"
@@ -16,13 +15,13 @@ class FakeService:
 
 def test_jwt_required_works_correctly_on_class(test_config):
 
-    valid_token = jwt.encode({'test': '123'}, config.get('JWT_SECRET'), algorithm='HS256')
+    valid_token = jwt.encode(
+        {"test": "123"}, config.get("JWT_SECRET"), algorithm="HS256"
+    )
 
     mock_request = Mock()
 
-    mock_request.headers = {
-        'Authorization': valid_token.decode("utf-8")
-    }
+    mock_request.headers = {"Authorization": valid_token.decode("utf-8")}
 
     service = FakeService()
 
@@ -45,9 +44,7 @@ def test_jwt_required_raises_error_if_missing_header():
 def test_jwt_required_raises_error_if_jwt_invalid(test_config):
     mock_request = Mock()
 
-    mock_request.headers = {
-        'Authorization': 'random token!'
-    }
+    mock_request.headers = {"Authorization": "random token!"}
 
     service = FakeService()
 
@@ -60,11 +57,11 @@ def test_jwt_required_raises_error_if_jwt_expired(test_config):
 
     # exp is the expiry time epoch.
     # (1577208307 ~ 2019 - 12 - 24 @ 5:30pm UTC Christmas Eve)
-    token = jwt.encode({'test': '123', 'exp': 1577208307}, config.get('JWT_SECRET'), algorithm='HS256')
+    jwt.encode(
+        {"test": "123", "exp": 1577208307}, config.get("JWT_SECRET"), algorithm="HS256"
+    )
 
-    mock_request.headers = {
-        'Authorization': 'random token!'
-    }
+    mock_request.headers = {"Authorization": "random token!"}
 
     service = FakeService()
 

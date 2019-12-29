@@ -18,3 +18,8 @@ class CreateUserRequest(Schema):
     email = fields.String(required=True)
     password = fields.String(required=True)
     display_name = fields.String(required=True)
+
+
+class UserTokenRequest(Schema):
+    email = fields.String(required=True)
+    token = fields.String(required=True)
