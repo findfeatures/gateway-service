@@ -6,6 +6,10 @@ class UserAuthRequest(Schema):
     password = fields.String(required=True)
 
 
+class UserCheckRequest(Schema):
+    email = fields.String(required=True)
+
+
 class UserAuthResponse(Schema):
     JWT = fields.String(required=True)
 

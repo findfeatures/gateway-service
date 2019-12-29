@@ -28,7 +28,7 @@ class GatewayService:
         Provides authentication for a user, will return
         a valid JWT if the user is successfully logged in.
         """
-        time.sleep(2)
+        time.sleep(1)
         user_auth_details = schemas.UserAuthRequest().load(json.loads(request.data))
         jwt_result = self.users_rpc.auth_user(
             user_auth_details["email"], user_auth_details["password"]
@@ -38,13 +38,31 @@ class GatewayService:
             schemas.UserAuthResponse().dumps(jwt_result), mimetype="application/json"
         )
 
+    @http("HEAD", "/user/<email>", expected_exceptions=(UserAlreadyExists,))
+    def users_check_exists(self, request, email):
+        """
+        Allows checking if a user already exists.
+        """
+        time.sleep(1)
+
+        user_exists = self.users_rpc.user_already_exists(email)
+
+        if user_exists:
+            raise UserAlreadyExists()
+
+        return Response(
+            mimetype="application/json"
+        )
+
     @http("POST", "/user", expected_exceptions=(UserAlreadyExists,))
     def users_create(self, request):
         """
         Allows the creation of a new user.
         """
+        time.sleep(1)
+
         create_user_details = schemas.CreateUserRequest().load(json.loads(request.data))
 
-        user_id = self.users_rpc.create_user(create_user_details)
+        self.users_rpc.create_user(create_user_details)
 
         return Response(mimetype="application/json")

@@ -92,7 +92,7 @@ class HttpEntrypoint(HttpRequestHandler):
         def registering_decorator(fn, args, kwargs):
             instance = cls(*args, **kwargs)
             register_entrypoint(fn, instance)
-            if instance.method in ("GET", "POST", "DELETE", "PUT") and (
+            if instance.method in ("GET", "POST", "DELETE", "PUT", "HEAD") and (
                 "*" in instance.allowed_methods
                 or instance.method in instance.allowed_methods
             ):
