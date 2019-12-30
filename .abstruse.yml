@@ -1,0 +1,14 @@
+image: abstruse_builder
+
+matrix:
+  - env: SCRIPT='test' API_VERSION=2
+
+branches:
+  - master
+
+before_install:
+  - echo "I worked!"
+script:
+  - echo "IM running!"
+install:
+  - echo "All good!"
