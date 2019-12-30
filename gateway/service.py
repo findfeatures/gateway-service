@@ -74,7 +74,7 @@ class GatewayService:
         """
         Allows verifying a users token from signup.
         """
-        time.sleep(1)
+        time.sleep(3)
 
         user_token_details = schemas.UserTokenRequest().load(json.loads(request.data))
 

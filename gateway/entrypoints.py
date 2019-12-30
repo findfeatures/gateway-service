@@ -8,6 +8,7 @@ from gateway.exceptions.users_exceptions import (
     UserNotVerified,
 )
 from marshmallow import ValidationError
+from nameko import config
 from nameko.exceptions import BadRequest, safe_for_serialization
 from nameko.extensions import register_entrypoint
 from nameko.web.handlers import HttpRequestHandler
@@ -32,7 +33,10 @@ class HttpEntrypoint(HttpRequestHandler):
 
     def __init__(self, method, url, expected_exceptions=(), **kwargs):
         super().__init__(method, url, expected_exceptions=expected_exceptions)
-        self.allowed_origin = kwargs.get("origin", ["*"])
+
+        cors = config.get("DEFAULT_CORS", "*").split(",")
+
+        self.allowed_origin = kwargs.get("origin", cors)
         self.allowed_methods = kwargs.get("methods", ["*"])
         self.allow_credentials = kwargs.get("credentials", True)
 
