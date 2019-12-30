@@ -1,0 +1,19 @@
+# Language setting
+language: python
+
+# Language Version
+python:
+  - 3.6.4
+
+# environment variable
+env:
+  global:
+    # DOCKER_USER and DOCKER_PASS
+    - secure: ZkR2IgZgXw33SBHtMl9CbAHv/kS+32COZVnJjEUcgSBnhgqyB9KOnIF6ezi95LqY02NCQ8VcdLkJY3g6ONps6URRrXPoUn47CNGG52ta8QQ/+AnkjFOi7EoXsohwRB0TihpCwyvNHhniz6D7mqRDLQoKPtzAdHaSOHHkWBBRVOEuFAAVjDiHzLr4f4nDQS4vUZd5Kkz4CzHuLRgfde7q0XQsljOqh+2jd0Rp+RAmFutiEaTeDOqVJv9jvaiwZ+2bnI3bpxH2D19eKxa1tDcr3ul6zHLvn57vsds9QGS9eXeVBOmau6YPD06pNjgcXcNF1x79/+4/KX8e/wvUkXXrWw==
+
+build:
+  ci:
+    - echo "Im running!"
+
+cache:
+    true
