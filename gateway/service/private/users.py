@@ -8,8 +8,8 @@ from gateway.exceptions.users_exceptions import (
     UserNotAuthorised,
     UserNotVerified,
 )
-from werkzeug import Response
 from gateway.service.base import ServiceMixin
+from werkzeug import Response
 
 
 class UsersServiceMixin(ServiceMixin):
