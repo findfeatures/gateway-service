@@ -6,7 +6,7 @@ from nameko.testing.services import replace_dependencies
 
 def test_users_check_exists_false(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "users_rpc")
+    users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     users.user_already_exists.return_value = False
@@ -22,7 +22,7 @@ def test_users_check_exists_false(config, web_session):
 
 def test_users_check_exists_true(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "users_rpc")
+    users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     users.user_already_exists.return_value = True

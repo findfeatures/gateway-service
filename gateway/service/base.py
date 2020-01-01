@@ -5,5 +5,5 @@ from nameko.rpc import RpcProxy
 class ServiceMixin:
     name = "gateway"
 
-    users_rpc = RpcProxy("users")
+    accounts_rpc = RpcProxy("accounts")
     redis = Redis()

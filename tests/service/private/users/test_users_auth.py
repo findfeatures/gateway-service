@@ -9,7 +9,7 @@ from nameko.testing.services import replace_dependencies
 
 def test_users_auth(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "users_rpc")
+    users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     users.auth_user.return_value = {"JWT": "test"}
@@ -29,7 +29,7 @@ def test_users_auth(config, web_session):
 
 def test_users_auth_not_authorised(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "users_rpc")
+    users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     users.auth_user.side_effect = UserNotAuthorised()
@@ -44,7 +44,7 @@ def test_users_auth_not_authorised(config, web_session):
 
 def test_users_auth_incorrect_schema(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "users_rpc")
+    users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     users.auth_user.side_effect = UserNotAuthorised()

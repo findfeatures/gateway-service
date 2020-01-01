@@ -9,7 +9,7 @@ from nameko.testing.services import replace_dependencies
 
 def tests_users_create(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "users_rpc")
+    users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     users.create_user.return_value = {"user_id": 1}
@@ -31,7 +31,7 @@ def tests_users_create(config, web_session):
 
 def tests_users_create_already_exists(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "users_rpc")
+    users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     users.create_user.side_effect = UserAlreadyExists()

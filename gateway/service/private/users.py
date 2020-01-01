@@ -9,9 +9,10 @@ from gateway.exceptions.users_exceptions import (
     UserNotVerified,
 )
 from werkzeug import Response
+from gateway.service.base import ServiceMixin
 
 
-class UsersServiceMixin:
+class UsersServiceMixin(ServiceMixin):
     @http("POST", "/user/auth", expected_exceptions=(UserNotVerified,))
     def users_auth(self, request):
         """
@@ -20,7 +21,7 @@ class UsersServiceMixin:
         """
         time.sleep(1)
         user_auth_details = schemas.UserAuthRequest().load(json.loads(request.data))
-        jwt_result = self.users_rpc.auth_user(
+        jwt_result = self.accounts_rpc.auth_user(
             user_auth_details["email"], user_auth_details["password"]
         )
 
@@ -35,7 +36,7 @@ class UsersServiceMixin:
         """
         time.sleep(1)
 
-        user_exists = self.users_rpc.user_already_exists(email)
+        user_exists = self.accounts_rpc.user_already_exists(email)
 
         if user_exists:
             raise UserAlreadyExists()
@@ -51,7 +52,7 @@ class UsersServiceMixin:
 
         create_user_details = schemas.CreateUserRequest().load(json.loads(request.data))
 
-        self.users_rpc.create_user(create_user_details)
+        self.accounts_rpc.create_user(create_user_details)
 
         return Response(mimetype="application/json")
 
@@ -64,7 +65,7 @@ class UsersServiceMixin:
 
         user_token_details = schemas.UserTokenRequest().load(json.loads(request.data))
 
-        self.users_rpc.verify_user(
+        self.accounts_rpc.verify_user(
             user_token_details["email"], user_token_details["token"]
         )
 
