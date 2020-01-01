@@ -14,7 +14,7 @@ from werkzeug import Response
 
 class UsersServiceMixin(ServiceMixin):
     @http("POST", "/user/auth", expected_exceptions=(UserNotVerified,))
-    def users_auth(self, request):
+    def auth_user(self, request):
         """
         Provides authentication for a user, will return
         a valid JWT if the user is successfully logged in.
@@ -30,7 +30,7 @@ class UsersServiceMixin(ServiceMixin):
         )
 
     @http("HEAD", "/user/<email>", expected_exceptions=(UserAlreadyExists,))
-    def users_check_exists(self, request, email):
+    def check_user_exists(self, request, email):
         """
         Allows checking if a user already exists.
         """
@@ -44,7 +44,7 @@ class UsersServiceMixin(ServiceMixin):
         return Response(mimetype="application/json")
 
     @http("POST", "/user", expected_exceptions=(UserAlreadyExists,))
-    def users_create(self, request):
+    def create_user(self, request):
         """
         Allows the creation of a new user.
         """
@@ -57,7 +57,7 @@ class UsersServiceMixin(ServiceMixin):
         return Response(mimetype="application/json")
 
     @http("POST", "/user-token", expected_exceptions=(UserNotAuthorised,))
-    def users_token(self, request):
+    def verify_user_token(self, request):
         """
         Allows verifying a users token from signup.
         """
