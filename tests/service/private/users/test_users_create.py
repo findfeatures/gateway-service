@@ -2,7 +2,7 @@ import json
 
 from gateway.exceptions.users_exceptions import UserAlreadyExists
 from gateway.service import GatewayService
-from mock import ANY, call
+from mock import call
 from nameko.containers import ServiceContainer
 from nameko.testing.services import replace_dependencies
 

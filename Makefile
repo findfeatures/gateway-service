@@ -18,7 +18,7 @@ check-coverage:
 	coverage report -m --fail-under 100
 
 run:
-	nameko run --config config.yml gateway.service
+	nameko run --config config.yml gateway.service:GatewayService
 
 build-image:
 	docker build -t calumwebb/gateway-service:$(TAG) .;

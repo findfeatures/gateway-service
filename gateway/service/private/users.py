@@ -8,23 +8,10 @@ from gateway.exceptions.users_exceptions import (
     UserNotAuthorised,
     UserNotVerified,
 )
-from nameko.rpc import RpcProxy
 from werkzeug import Response
 
 
-class GatewayService:
-    """
-        Service acts as a gateway to other services over http.
-    """
-
-    name = "gateway"
-
-    users_rpc = RpcProxy("users")
-
-    @http("GET", "/health-check", rate_limit=150, auth_required=True)
-    def health_check(self, request):
-        return 200, "OK"
-
+class UsersServiceMixin:
     @http("POST", "/user/auth", expected_exceptions=(UserNotVerified,))
     def users_auth(self, request):
         """

@@ -12,7 +12,7 @@ from gateway.exceptions.users_exceptions import (
     UserNotAuthorised,
     UserNotVerified,
 )
-from gateway.utils.rate_limit import check_rate_limit
+from gateway.utils.redis_utils import check_rate_limit, store_redis_rate_limit_for_url
 from marshmallow import ValidationError
 from nameko import config
 from nameko.exceptions import BadRequest, safe_for_serialization
@@ -67,6 +67,9 @@ class HttpEntrypoint(HttpRequestHandler):
         if self.rate_limit is not None and not self.auth_required:
             raise ValueError("if rate limit is defined then auth_required must be true")
 
+        if self.rate_limit:
+            store_redis_rate_limit_for_url(self.url, self.rate_limit)
+
     def handle_request(self, request):
         rate_limit_left = 0
         self.request = request
@@ -76,10 +79,10 @@ class HttpEntrypoint(HttpRequestHandler):
 
         if self.auth_required:
             try:
-                token = self._get_token_from_header(request)
-
+                auth_token = self._get_auth_token_from_header(request)
+                request.auth_token = auth_token
                 if self.rate_limit:
-                    rate_limit_left = self._check_rate_limit(request, token)
+                    rate_limit_left = self._check_rate_limit(auth_token)
             except (
                 UnauthorizedRequest,
                 AuthorizationHeaderMissing,
@@ -143,12 +146,12 @@ class HttpEntrypoint(HttpRequestHandler):
 
         return response
 
-    def _check_rate_limit(self, request, token):
-        rate_limit_left = check_rate_limit(token, self.url, self.rate_limit)
+    def _check_rate_limit(self, auth_token):
+        rate_limit_left = check_rate_limit(auth_token, self.url, self.rate_limit)
         return rate_limit_left
 
     @staticmethod
-    def _get_token_from_header(request):
+    def _get_auth_token_from_header(request):
         token = request.headers.get("Authorization")
 
         if not token:
