@@ -7,7 +7,7 @@ from nameko.containers import ServiceContainer
 from nameko.testing.services import replace_dependencies
 
 
-def test_users_auth(config, web_session):
+def test_auth_user(config, web_session):
     container = ServiceContainer(GatewayService)
     users = replace_dependencies(container, "accounts_rpc")
     container.start()
@@ -18,7 +18,7 @@ def test_users_auth(config, web_session):
     password = "password"
 
     response = web_session.post(
-        "/user/auth", data=json.dumps({"email": email, "password": password})
+        "/v1/user/auth", data=json.dumps({"email": email, "password": password})
     )
 
     assert users.auth_user.call_args == call(email, password)
@@ -27,7 +27,7 @@ def test_users_auth(config, web_session):
     assert response.json() == {"JWT": "test"}
 
 
-def test_users_auth_not_authorised(config, web_session):
+def test_auth_user_not_authorised(config, web_session):
     container = ServiceContainer(GatewayService)
     users = replace_dependencies(container, "accounts_rpc")
     container.start()
@@ -35,21 +35,21 @@ def test_users_auth_not_authorised(config, web_session):
     users.auth_user.side_effect = UserNotAuthorised()
 
     response = web_session.post(
-        "/user/auth", data=json.dumps({"email": "email", "password": "password"})
+        "/v1/user/auth", data=json.dumps({"email": "email", "password": "password"})
     )
 
     assert response.status_code == 401
     assert response.json() == {"error": "USER_NOT_AUTHORISED", "message": ""}
 
 
-def test_users_auth_incorrect_schema(config, web_session):
+def test_auth_user_incorrect_schema(config, web_session):
     container = ServiceContainer(GatewayService)
     users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     users.auth_user.side_effect = UserNotAuthorised()
 
-    response = web_session.post("/user/auth", data=json.dumps({}))
+    response = web_session.post("/v1/user/auth", data=json.dumps({}))
 
     assert response.status_code == 400
     assert response.json() == {"error": "VALIDATION_ERROR", "message": ANY}

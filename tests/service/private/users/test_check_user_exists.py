@@ -4,7 +4,7 @@ from nameko.containers import ServiceContainer
 from nameko.testing.services import replace_dependencies
 
 
-def test_users_check_exists_false(config, web_session):
+def test_check_user_exists_false(config, web_session):
     container = ServiceContainer(GatewayService)
     users = replace_dependencies(container, "accounts_rpc")
     container.start()
@@ -13,14 +13,14 @@ def test_users_check_exists_false(config, web_session):
 
     email = "test@google.com"
 
-    response = web_session.head(f"/user/{email}")
+    response = web_session.head(f"/v1/user/{email}")
 
     assert users.user_already_exists.call_args == call(email)
 
     assert response.status_code == 200
 
 
-def test_users_check_exists_true(config, web_session):
+def test_check_user_exists_true(config, web_session):
     container = ServiceContainer(GatewayService)
     users = replace_dependencies(container, "accounts_rpc")
     container.start()
@@ -29,7 +29,7 @@ def test_users_check_exists_true(config, web_session):
 
     email = "test@google.com"
 
-    response = web_session.head(f"/user/{email}")
+    response = web_session.head(f"/v1/user/{email}")
 
     assert users.user_already_exists.call_args == call(email)
 

@@ -7,7 +7,7 @@ from nameko.containers import ServiceContainer
 from nameko.testing.services import replace_dependencies
 
 
-def test_users_token_valid(config, web_session):
+def test_verify_user_token_valid(config, web_session):
     container = ServiceContainer(GatewayService)
     users = replace_dependencies(container, "accounts_rpc")
     container.start()
@@ -18,7 +18,7 @@ def test_users_token_valid(config, web_session):
     token = "token"
 
     response = web_session.post(
-        "/user-token", data=json.dumps({"email": email, "token": token})
+        "/v1/user-token", data=json.dumps({"email": email, "token": token})
     )
 
     assert users.verify_user.call_args == call(email, token)
@@ -26,7 +26,7 @@ def test_users_token_valid(config, web_session):
     assert response.status_code == 200
 
 
-def test_users_token_invalid(config, web_session):
+def test_verify_user_token_invalid(config, web_session):
     container = ServiceContainer(GatewayService)
     users = replace_dependencies(container, "accounts_rpc")
     container.start()
@@ -37,7 +37,7 @@ def test_users_token_invalid(config, web_session):
     token = "token"
 
     response = web_session.post(
-        "/user-token", data=json.dumps({"email": email, "token": token})
+        "/v1/user-token", data=json.dumps({"email": email, "token": token})
     )
 
     assert users.verify_user.call_args == call(email, token)
@@ -46,14 +46,14 @@ def test_users_token_invalid(config, web_session):
     assert response.json() == {"error": "USER_NOT_AUTHORISED", "message": ""}
 
 
-def test_users_token_incorrect_schema(config, web_session):
+def test_verify_user_token_incorrect_schema(config, web_session):
     container = ServiceContainer(GatewayService)
     users = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     email = "test@google.com"
 
-    response = web_session.post("/user-token", data=json.dumps({"email": email}))
+    response = web_session.post("/v1/user-token", data=json.dumps({"email": email}))
 
     assert response.status_code == 400
     assert response.json() == {"error": "VALIDATION_ERROR", "message": ANY}

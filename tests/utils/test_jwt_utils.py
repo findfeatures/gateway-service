@@ -3,7 +3,7 @@ import pytest
 from gateway.exceptions.users_exceptions import UserNotAuthorised
 from gateway.utils.jwt_utils import jwt_required
 from mock import Mock
-from nameko import config
+from nameko import config as nameko_config
 
 
 class FakeService:
@@ -12,10 +12,10 @@ class FakeService:
         return "I worked"
 
 
-def test_jwt_required_works_correctly_on_class(test_config):
+def test_jwt_required_works_correctly_on_class(config):
 
     valid_token = jwt.encode(
-        {"test": "123"}, config.get("JWT_SECRET"), algorithm="HS256"
+        {"test": "123"}, nameko_config.get("JWT_SECRET"), algorithm="HS256"
     )
 
     mock_request = Mock()
@@ -40,7 +40,7 @@ def test_jwt_required_raises_error_if_missing_header():
         service.fake_function(mock_request)
 
 
-def test_jwt_required_raises_error_if_jwt_invalid(test_config):
+def test_jwt_required_raises_error_if_jwt_invalid(config):
     mock_request = Mock()
 
     mock_request.headers = {"Authorization": "random token!"}
@@ -51,13 +51,13 @@ def test_jwt_required_raises_error_if_jwt_invalid(test_config):
         service.fake_function(mock_request)
 
 
-def test_jwt_required_raises_error_if_jwt_expired(test_config):
+def test_jwt_required_raises_error_if_jwt_expired(config):
     mock_request = Mock()
 
     # exp is the expiry time epoch.
     # (1577208307 ~ 2019 - 12 - 24 @ 5:30pm UTC Christmas Eve)
     jwt.encode(
-        {"test": "123", "exp": 1577208307}, config.get("JWT_SECRET"), algorithm="HS256"
+        {"test": "123", "exp": 1577208307}, nameko_config.get("JWT_SECRET"), algorithm="HS256"
     )
 
     mock_request.headers = {"Authorization": "random token!"}

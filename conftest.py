@@ -15,13 +15,14 @@ def project_root():
 
 @pytest.fixture(scope="session")
 def test_config(project_root):
+
     config_file = os.path.join(project_root, "config.yaml")
     setup_yaml_parser()
     with open(config_file) as stream:
         config = yaml.unsafe_load(stream.read())
+
     with nameko.config.patch(config, clear=True):
         yield
-
 
 @pytest.fixture
 def config(test_config, rabbit_config, web_config):

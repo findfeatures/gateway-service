@@ -42,6 +42,10 @@ def check_rate_limit(auth_token, url, rate_limit_per_minute):
 
 
 def store_redis_rate_limit_for_url(url, rate_limit):
-    r = get_redis_connection()
+    try:
+        r = get_redis_connection()
 
-    r.set(f"rate-limit:{url}", rate_limit)
+        r.set(f"rate-limit:{url}", rate_limit)
+    except Exception as exc:
+        logger.info(exc)
+
