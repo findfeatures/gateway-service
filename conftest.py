@@ -24,6 +24,7 @@ def test_config(project_root):
     with nameko.config.patch(config, clear=True):
         yield
 
+
 @pytest.fixture
 def config(test_config, rabbit_config, web_config):
     pass

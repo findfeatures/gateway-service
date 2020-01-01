@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 
 import redis
 from gateway.exceptions.base import RateLimitExceeded
@@ -11,10 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 def get_redis_connection():
-    redis_url = config.get("REDIS_URL")
+    # not ideal, but sometimes redis is needed before the tests are run
+    # so we need to expose the REDIS_URL here too
+    redis_url = config.get("REDIS_URL") or os.environ["REDIS_URL"]
 
-    if not redis_url:
-        raise ValueError("REDIS_URL must be defined")
+    if redis_url is None:
+        raise ValueError(
+            "REDIS_URL must be either defined in the config or as an env variable (when running tests). Example: REDIS_URL=redis://127.0.0.1:6379/0"
+        )
 
     return redis.from_url(redis_url)
 
@@ -42,10 +47,6 @@ def check_rate_limit(auth_token, url, rate_limit_per_minute):
 
 
 def store_redis_rate_limit_for_url(url, rate_limit):
-    try:
-        r = get_redis_connection()
+    r = get_redis_connection()
 
-        r.set(f"rate-limit:{url}", rate_limit)
-    except Exception as exc:
-        logger.info(exc)
-
+    r.set(f"rate-limit:{url}", rate_limit)

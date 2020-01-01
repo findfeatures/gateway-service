@@ -57,7 +57,9 @@ def test_jwt_required_raises_error_if_jwt_expired(config):
     # exp is the expiry time epoch.
     # (1577208307 ~ 2019 - 12 - 24 @ 5:30pm UTC Christmas Eve)
     jwt.encode(
-        {"test": "123", "exp": 1577208307}, nameko_config.get("JWT_SECRET"), algorithm="HS256"
+        {"test": "123", "exp": 1577208307},
+        nameko_config.get("JWT_SECRET"),
+        algorithm="HS256",
     )
 
     mock_request.headers = {"Authorization": "random token!"}
