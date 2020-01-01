@@ -3,8 +3,9 @@ import logging
 
 import redis
 from gateway.exceptions.base import RateLimitExceeded
-from nameko import config
 from gateway.lua_scripts import RATE_LIMIT
+from nameko import config
+
 
 logger = logging.getLogger(__name__)
 

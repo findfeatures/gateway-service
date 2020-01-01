@@ -1,6 +1,7 @@
+import datetime
+
 from gateway.entrypoints import http
 from gateway.service.base import ServiceMixin
-import datetime
 
 
 class HealthCheckServiceMixin(ServiceMixin):
