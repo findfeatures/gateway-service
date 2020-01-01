@@ -40,10 +40,11 @@ def check_rate_limit(auth_token, url, rate_limit_per_minute):
     num_of_existing_scores, result = result.decode("utf-8").split(":")
     num_of_existing_scores = int(num_of_existing_scores)
 
-    if num_of_existing_scores == 0 and result == "limit-exceeded":
+    if num_of_existing_scores == rate_limit_per_minute and result == "limit-exceeded":
         raise RateLimitExceeded()
 
-    return rate_limit_per_minute - num_of_existing_scores
+    # -1 because num_of_existing_scores is before we insert another 1
+    return rate_limit_per_minute - num_of_existing_scores - 1
 
 
 def store_redis_rate_limit_for_url(url, rate_limit):

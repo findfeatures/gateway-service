@@ -88,10 +88,11 @@ class HttpEntrypoint(HttpRequestHandler):
                 AuthorizationHeaderMissing,
                 RateLimitExceeded,
             ) as exc:
-                return self.response_from_exception(exc)
+                response = self.response_from_exception(exc)
+                response = self._add_rate_limit(response, rate_limit_left)
+                return response
 
         response = super().handle_request(request)
-
         response = self._add_rate_limit(response, rate_limit_left)
         return response
 
@@ -140,6 +141,7 @@ class HttpEntrypoint(HttpRequestHandler):
         return response
 
     def _add_rate_limit(self, response, rate_limit_left):
+
         if self.rate_limit:
             response.headers.add("X-Rate-Limit", self.rate_limit)
             response.headers.add("X-Rate-Limit-Left", rate_limit_left)
