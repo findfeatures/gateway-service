@@ -92,7 +92,6 @@ class HttpEntrypoint(HttpRequestHandler):
 
         response = super().handle_request(request)
 
-        response = self._add_cors(response)
         response = self._add_rate_limit(response, rate_limit_left)
         return response
 
@@ -120,6 +119,7 @@ class HttpEntrypoint(HttpRequestHandler):
             status=status_code,
             mimetype="application/json",
         )
+        response = self._add_cors(response)
 
         return response
 
