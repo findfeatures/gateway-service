@@ -8,7 +8,6 @@ from gateway.exceptions.users_exceptions import (
     UserNotAuthorised,
     UserNotVerified,
 )
-from gateway.utils import jwt_required
 from nameko.rpc import RpcProxy
 from werkzeug import Response
 
@@ -22,7 +21,7 @@ class GatewayService:
 
     users_rpc = RpcProxy("users")
 
-    @http("GET", "/health-check")
+    @http("GET", "/health-check", rate_limit=150, auth_required=True)
     def health_check(self, request):
         return 200, "OK"
 

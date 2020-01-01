@@ -53,9 +53,7 @@ def test_users_token_incorrect_schema(config, web_session):
 
     email = "test@google.com"
 
-    response = web_session.post(
-        "/user-token", data=json.dumps({"email": email})
-    )
+    response = web_session.post("/user-token", data=json.dumps({"email": email}))
 
     assert response.status_code == 400
     assert response.json() == {"error": "VALIDATION_ERROR", "message": ANY}

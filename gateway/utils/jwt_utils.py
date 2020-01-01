@@ -19,7 +19,6 @@ def jwt_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            # request is passed through the second argument
             request = args[1]
 
             jwt_header = request.headers.get("Authorization")

@@ -14,3 +14,15 @@ def remote_error(exc_path):
         return exc_type
 
     return wrapper
+
+
+class RateLimitExceeded(Exception):
+    pass
+
+
+class AuthorizationHeaderMissing(Exception):
+    pass
+
+
+class UnauthorizedRequest(Exception):
+    pass

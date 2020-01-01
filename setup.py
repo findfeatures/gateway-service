@@ -24,6 +24,7 @@ setuptools.setup(
         "marshmallow==3.0.1",
         "python-dateutil==2.8.0",
         "PyJWT==1.7.1",
+        "redis==3.3.11",
     ],
     extras_require={
         "dev": [

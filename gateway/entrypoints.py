@@ -13,20 +13,39 @@ from nameko.exceptions import BadRequest, safe_for_serialization
 from nameko.extensions import register_entrypoint
 from nameko.web.handlers import HttpRequestHandler
 from werkzeug import Response
+from gateway.exceptions.base import (
+    UnauthorizedRequest,
+    AuthorizationHeaderMissing,
+    RateLimitExceeded,
+)
+from gateway.utils.rate_limit import check_rate_limit
 
 
 class HttpEntrypoint(HttpRequestHandler):
     """
-        Overrides `response_from_exception` so
-        we can customize error handling.
-
-        Also fixes CORS issues!
+    Custom HTTPEntrypoint that:
+        - Adds CORS support by default to requests
+        - Fixes CORS issues with Options requests
+        - Add rate_limit option (rate_limit is per minute on a rolling window)
+        - Add rate_limit headers to requests that are rate limited
+        - Add authorization option (requires Authorization header with valid api token)
+        - Better exception handling to catch errors we care about and
+            return sensible messages.
+        - Adds unique identifier to each request (not sure if needed but could
+            still be useful)
     """
 
-    mapped_errors = {
-        ValidationError: (400, "VALIDATION_ERROR"),  # is always added as expected
+    # standard mapped errors which are always caught
+    standard_mapped_errors = {
+        ValidationError: (400, "VALIDATION_ERROR"),
+        UserNotAuthorised: (401, "USER_NOT_AUTHORISED"),
         BadRequest: (400, "BAD_REQUEST"),
-        UserNotAuthorised: (401, "USER_NOT_AUTHORISED"),  # is always added as expected
+        AuthorizationHeaderMissing: (400, "AUTHORIZATION_HEADER_MISSING"),
+        UnauthorizedRequest: (401, "UNAUTHORISED_REQUEST"),
+        RateLimitExceeded: (429, "RATE_LIMIT_EXCEEDED"),
+    }
+
+    mapped_errors = {
         UserAlreadyExists: (409, "USER_ALREADY_EXISTS"),
         UserNotVerified: (418, "USER_NOT_VERIFIED"),
     }
@@ -40,12 +59,39 @@ class HttpEntrypoint(HttpRequestHandler):
         self.allowed_methods = kwargs.get("methods", ["*"])
         self.allow_credentials = kwargs.get("credentials", True)
 
+        self.standard_mapped_errors_tuple = tuple(self.standard_mapped_errors.keys())
+
+        self.rate_limit = kwargs.get("rate_limit")
+        self.auth_required = kwargs.get("auth_required", False)
+
+        if self.rate_limit is not None and not self.auth_required:
+            raise ValueError("if rate limit is defined then auth_required must be true")
+
     def handle_request(self, request):
+        rate_limit_left = 0
         self.request = request
 
         if request.method == "OPTIONS":
             return self.response_from_result(result="")
-        return super().handle_request(request)
+
+        if self.auth_required:
+            try:
+                token = self._get_token_from_header(request)
+
+                if self.rate_limit:
+                    rate_limit_left = self._check_rate_limit(request, token)
+            except (
+                UnauthorizedRequest,
+                AuthorizationHeaderMissing,
+                RateLimitExceeded,
+            ) as exc:
+                return self.response_from_exception(exc)
+
+        response = super().handle_request(request)
+
+        response = self._add_cors(response)
+        response = self._add_rate_limit(response, rate_limit_left)
+        return response
 
     def response_from_result(self, *args, **kwargs):
         response = super(HttpEntrypoint, self).response_from_result(*args, **kwargs)
@@ -55,12 +101,12 @@ class HttpEntrypoint(HttpRequestHandler):
     def response_from_exception(self, exc):
         status_code, error_code = 500, "UNEXPECTED_ERROR"
 
-        if (
-            isinstance(exc, self.expected_exceptions)
-            or isinstance(exc, ValidationError)
-            or isinstance(exc, UserNotAuthorised)
+        if isinstance(exc, self.expected_exceptions) or isinstance(
+            exc, self.standard_mapped_errors_tuple
         ):
-            if type(exc) in self.mapped_errors:
+            if type(exc) in self.standard_mapped_errors:
+                status_code, error_code = self.standard_mapped_errors[type(exc)]
+            elif type(exc) in self.mapped_errors:
                 status_code, error_code = self.mapped_errors[type(exc)]
             else:
                 status_code = 400
@@ -72,7 +118,7 @@ class HttpEntrypoint(HttpRequestHandler):
             mimetype="application/json",
         )
 
-        return self._add_cors(response)
+        return response
 
     def _add_cors(self, response):
         response.headers.add(
@@ -89,6 +135,33 @@ class HttpEntrypoint(HttpRequestHandler):
             "Access-Control-Allow-Origin", ",".join(self.allowed_origin)
         )
         return response
+
+    def _add_rate_limit(self, response, rate_limit_left):
+        if self.rate_limit:
+            response.headers.add(
+                "X-Rate-Limit", self.rate_limit
+            )
+            response.headers.add(
+                "X-Rate-Limit-Left", rate_limit_left
+            )
+
+        return response
+
+    def _check_rate_limit(self, request, token):
+        rate_limit_left = check_rate_limit(token, self.url, self.rate_limit)
+        return rate_limit_left
+
+    @staticmethod
+    def _get_token_from_header(request):
+        token = request.headers.get("Authorization")
+
+        if not token:
+            raise AuthorizationHeaderMissing("Authorization header is required.")
+
+        if token != "insecureToken":
+            raise UnauthorizedRequest("Request is unauthorized.")
+
+        return token
 
     @classmethod
     def decorator(cls, *args, **kwargs):

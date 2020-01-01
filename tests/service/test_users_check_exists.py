@@ -13,9 +13,7 @@ def test_users_check_exists_false(config, web_session):
 
     email = "test@google.com"
 
-    response = web_session.head(
-        f"/user/{email}"
-    )
+    response = web_session.head(f"/user/{email}")
 
     assert users.user_already_exists.call_args == call(email)
 
@@ -31,12 +29,10 @@ def test_users_check_exists_true(config, web_session):
 
     email = "test@google.com"
 
-    response = web_session.head(
-        f"/user/{email}"
-    )
+    response = web_session.head(f"/user/{email}")
 
     assert users.user_already_exists.call_args == call(email)
 
     assert response.status_code == 409
     # heads dont return any thing
-    assert response.text == ''
+    assert response.text == ""
