@@ -2,23 +2,23 @@ import json
 from functools import partial
 from types import FunctionType
 
+from gateway.exceptions.base import (
+    AuthorizationHeaderMissing,
+    RateLimitExceeded,
+    UnauthorizedRequest,
+)
 from gateway.exceptions.users_exceptions import (
     UserAlreadyExists,
     UserNotAuthorised,
     UserNotVerified,
 )
+from gateway.utils.rate_limit import check_rate_limit
 from marshmallow import ValidationError
 from nameko import config
 from nameko.exceptions import BadRequest, safe_for_serialization
 from nameko.extensions import register_entrypoint
 from nameko.web.handlers import HttpRequestHandler
 from werkzeug import Response
-from gateway.exceptions.base import (
-    UnauthorizedRequest,
-    AuthorizationHeaderMissing,
-    RateLimitExceeded,
-)
-from gateway.utils.rate_limit import check_rate_limit
 
 
 class HttpEntrypoint(HttpRequestHandler):
@@ -138,12 +138,8 @@ class HttpEntrypoint(HttpRequestHandler):
 
     def _add_rate_limit(self, response, rate_limit_left):
         if self.rate_limit:
-            response.headers.add(
-                "X-Rate-Limit", self.rate_limit
-            )
-            response.headers.add(
-                "X-Rate-Limit-Left", rate_limit_left
-            )
+            response.headers.add("X-Rate-Limit", self.rate_limit)
+            response.headers.add("X-Rate-Limit-Left", rate_limit_left)
 
         return response
 

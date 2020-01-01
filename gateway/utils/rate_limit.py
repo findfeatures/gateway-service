@@ -1,9 +1,10 @@
-import logging
 import datetime
+import logging
+
 import redis
+from gateway.exceptions.base import RateLimitExceeded
 from nameko import config
 
-from gateway.exceptions.base import RateLimitExceeded
 
 logger = logging.getLogger(__name__)
 
