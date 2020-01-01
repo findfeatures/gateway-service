@@ -20,7 +20,7 @@ pip install -e ".[dev]"
 
 Run Unit Test
 ```bash
-Make test
+REDIS_URL=redis://127.0.0.1:6379/0 Make test
 ```
 
 To run the service
