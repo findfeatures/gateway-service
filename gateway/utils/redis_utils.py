@@ -24,7 +24,7 @@ def get_redis_connection():
     return redis.from_url(redis_url)
 
 
-def check_rate_limit(auth_token, url, rate_limit_per_minute):
+def check_rate_limit(auth_token, url, rate_limit_per_hour):
     r = get_redis_connection()
 
     # sorted sets in redis FTW!
@@ -34,17 +34,17 @@ def check_rate_limit(auth_token, url, rate_limit_per_minute):
     script = r.register_script(RATE_LIMIT)
     result = script(
         keys=[f"{auth_token}:{url}"],
-        args=[milliseconds_since_epoch, rate_limit_per_minute],
+        args=[milliseconds_since_epoch, rate_limit_per_hour],
     )
 
     num_of_existing_scores, result = result.decode("utf-8").split(":")
     num_of_existing_scores = int(num_of_existing_scores)
 
-    if num_of_existing_scores == rate_limit_per_minute and result == "limit-exceeded":
+    if num_of_existing_scores == rate_limit_per_hour and result == "limit-exceeded":
         raise RateLimitExceeded()
 
     # -1 because num_of_existing_scores is before we insert another 1
-    return rate_limit_per_minute - num_of_existing_scores - 1
+    return rate_limit_per_hour - num_of_existing_scores - 1
 
 
 def store_redis_rate_limit_for_url(url, rate_limit):

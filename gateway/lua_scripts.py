@@ -5,7 +5,7 @@ RATE_LIMIT = """
     remove any scores for the at key between 0 and 1 minute before the 
     current request time
 ]]--
-redis.call('ZREMRANGEBYSCORE', KEYS[1], 0, ARGV[1] - 60 * 1000 )
+redis.call('ZREMRANGEBYSCORE', KEYS[1], 0, ARGV[1] - 60 * 60 * 1000 )
 
 --[[
     check if number of scores in the key are < requests allowed and if so

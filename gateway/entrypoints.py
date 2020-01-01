@@ -26,7 +26,7 @@ class HttpEntrypoint(HttpRequestHandler):
     Custom HTTPEntrypoint that:
         - Adds CORS support by default to requests
         - Fixes CORS issues with Options requests
-        - Add rate_limit option (rate_limit is per minute on a rolling window)
+        - Add rate_limit option (rate_limit is per hour on a rolling window)
         - Add rate_limit headers to requests that are rate limited
         - Add authorization option (requires Authorization header with valid api token)
         - Better exception handling to catch errors we care about and

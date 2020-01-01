@@ -5,7 +5,7 @@ from gateway.service.base import ServiceMixin
 
 
 class HealthCheckServiceMixin(ServiceMixin):
-    @http("GET", "/health-check", rate_limit=10, auth_required=True)
+    @http("GET", "/health-check")
     def health_check(self, request):
 
         self.redis.set("health-check", datetime.datetime.utcnow().isoformat())
