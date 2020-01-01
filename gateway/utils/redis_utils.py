@@ -1,7 +1,7 @@
 import datetime
+import hashlib
 import logging
 import os
-import hashlib
 
 import redis
 from gateway.exceptions.base import RateLimitExceeded

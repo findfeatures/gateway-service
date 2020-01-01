@@ -4,8 +4,8 @@ import json
 from gateway.entrypoints import http
 from gateway.lua_scripts import RATE_LIMIT_QUERY
 from gateway.service.base import ServiceMixin
-from werkzeug import Response
 from gateway.utils.redis_utils import hash_auth_token
+from werkzeug import Response
 
 
 class RateLimitServiceMixin(ServiceMixin):
