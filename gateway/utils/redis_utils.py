@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import hashlib
 
 import redis
 from gateway.exceptions.base import RateLimitExceeded
@@ -33,7 +34,7 @@ def check_rate_limit(auth_token, url, rate_limit_per_hour):
 
     script = r.register_script(RATE_LIMIT)
     result = script(
-        keys=[f"{auth_token}:{url}"],
+        keys=[f"{hash_auth_token(auth_token)}:{url}"],
         args=[milliseconds_since_epoch, rate_limit_per_hour],
     )
 
@@ -51,3 +52,7 @@ def store_redis_rate_limit_for_url(url, rate_limit):
     r = get_redis_connection()
 
     r.set(f"rate-limit:{url}", rate_limit)
+
+
+def hash_auth_token(auth_token):
+    return hashlib.sha224(auth_token.encode()).hexdigest()
