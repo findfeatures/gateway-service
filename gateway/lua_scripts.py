@@ -23,7 +23,7 @@ end
 
 """
 
-RATE_LIMIT_QUERY = """
+GET_RATE_LIMIT_QUERY = """
 --[[
     remove any scores for the at key between 0 and 1 minute before the 
     current request time

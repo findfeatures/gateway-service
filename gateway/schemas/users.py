@@ -27,3 +27,4 @@ class VerifyUserTokenRequest(Schema):
 
 class ResendUserTokenEmailRequest(Schema):
     email = fields.String(required=True)
+    password = fields.String(required=True)

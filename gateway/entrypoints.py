@@ -12,7 +12,7 @@ from gateway.exceptions.users_exceptions import (
     UserNotAuthorised,
     UserNotVerified,
 )
-from gateway.utils.redis_utils import check_rate_limit, store_redis_rate_limit_for_url
+from gateway.utils.redis_utils import check_rate_limit, store_redis_rate_limit_for_url, redis_send_monitor
 from marshmallow import ValidationError
 from nameko import config
 from nameko.exceptions import BadRequest, safe_for_serialization
@@ -82,6 +82,12 @@ class HttpEntrypoint(HttpRequestHandler):
             )
 
     def handle_request(self, request):
+
+        redis_send_monitor('API_REQUEST', {
+            'method': request.method,
+            'url': self.url,
+        })
+
         rate_limit_left = 0
         self.request = request
 

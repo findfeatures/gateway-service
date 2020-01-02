@@ -2,7 +2,7 @@ import datetime
 import json
 
 from gateway.entrypoints import http
-from gateway.lua_scripts import RATE_LIMIT_QUERY
+from gateway.lua_scripts import GET_RATE_LIMIT_QUERY
 from gateway.service.base import ServiceMixin
 from gateway.utils.redis_utils import hash_auth_token
 from werkzeug import Response
@@ -20,7 +20,7 @@ class RateLimitServiceMixin(ServiceMixin):
         endpoints = ["/v1/rate-limit"]
 
         for endpoint in endpoints:
-            script = self.redis.register_script(RATE_LIMIT_QUERY)
+            script = self.redis.register_script(GET_RATE_LIMIT_QUERY)
 
             num_of_existing_scores = script(
                 keys=[f"{hash_auth_token(auth_token)}:{endpoint}"], args=[end_timestamp]

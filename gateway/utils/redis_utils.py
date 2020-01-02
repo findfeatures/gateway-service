@@ -11,6 +11,8 @@ from nameko import config
 
 logger = logging.getLogger(__name__)
 
+MONITORING_STREAM_NAME = "MONITORING_STREAM"
+
 
 def get_redis_connection():
     # not ideal, but sometimes redis is needed before the tests are run
@@ -56,3 +58,18 @@ def store_redis_rate_limit_for_url(url, rate_limit):
 
 def hash_auth_token(auth_token):
     return hashlib.sha224(auth_token.encode()).hexdigest()
+
+
+def redis_send_monitor(monitor_name, data=None):
+    if data is None:
+        data = {}
+
+    # add __MONITOR_NAME to data dict
+    if '__MONITOR_NAME' in data:
+        raise ValueError('__MONITOR_NAME can only be defined once.')
+
+    data['__MONITOR_NAME'] = monitor_name
+
+    r = get_redis_connection()
+
+    r.xadd(MONITORING_STREAM_NAME, data)
