@@ -2,6 +2,10 @@ import json
 from functools import partial
 from types import FunctionType
 
+from gateway.dependencies.redis.provider import (
+    redis_send_monitor,
+    store_redis_rate_limit_for_url,
+)
 from gateway.exceptions.base import (
     AuthorizationHeaderMissing,
     RateLimitExceeded,
@@ -12,7 +16,6 @@ from gateway.exceptions.users_exceptions import (
     UserNotAuthorised,
     UserNotVerified,
 )
-from gateway.utils.redis_utils import check_rate_limit, store_redis_rate_limit_for_url, redis_send_monitor
 from marshmallow import ValidationError
 from nameko import config
 from nameko.exceptions import BadRequest, safe_for_serialization
@@ -25,15 +28,12 @@ class HttpEntrypoint(HttpRequestHandler):
     """
     Custom HTTPEntrypoint that:
         - Adds CORS support by default to requests
-        - Fixes CORS issues with Options requests
         - Add rate_limit and private_rate_limit option
-            (rate_limit is per hour on a rolling window)
+            (rate_limit is per minute on a rolling window)
         - Add rate_limit headers to requests that are rate limited
         - Add authorization option (requires Authorization header with valid api token)
         - Better exception handling to catch errors we care about and
             return sensible messages.
-        - Adds unique identifier to each request (not sure if needed but could
-            still be useful)
     """
 
     # standard mapped errors which are always caught
@@ -83,10 +83,7 @@ class HttpEntrypoint(HttpRequestHandler):
 
     def handle_request(self, request):
 
-        redis_send_monitor('API_REQUEST', {
-            'method': request.method,
-            'url': self.url,
-        })
+        redis_send_monitor("API_REQUEST", {"method": request.method, "url": self.url})
 
         rate_limit_left = 0
         self.request = request
@@ -99,7 +96,7 @@ class HttpEntrypoint(HttpRequestHandler):
                 auth_token = self._get_auth_token_from_header(request)
                 request.auth_token = auth_token
                 if self.rate_limit:
-                    rate_limit_left = self._check_rate_limit(auth_token=auth_token)
+                    rate_limit_left = self._check_rate_limit(identifier=auth_token)
             except (
                 UnauthorizedRequest,
                 AuthorizationHeaderMissing,
@@ -111,7 +108,9 @@ class HttpEntrypoint(HttpRequestHandler):
 
         if self.private_rate_limit:
             try:
-                rate_limit_left = self._check_rate_limit()
+                rate_limit_left = self._check_rate_limit(
+                    identifier=request.remote_addr, sensitive=False
+                )
             except (RateLimitExceeded,) as exc:
                 response = self.response_from_exception(exc)
 
@@ -175,9 +174,12 @@ class HttpEntrypoint(HttpRequestHandler):
 
         return response
 
-    def _check_rate_limit(self, auth_token="public"):
+    def _check_rate_limit(self, identifier="", sensitive=True):
         rate_limit_left = check_rate_limit(
-            auth_token, self.url, self.rate_limit or self.private_rate_limit
+            identifier,
+            self.url,
+            self.rate_limit or self.private_rate_limit,
+            sensitive=sensitive,
         )
         return rate_limit_left
 

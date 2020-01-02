@@ -25,6 +25,8 @@ setuptools.setup(
         "python-dateutil==2.8.0",
         "PyJWT==1.7.1",
         "redis==3.3.11",
+        "walrus==0.8.0",
+        "passlib==1.7.2",
     ],
     extras_require={
         "dev": [

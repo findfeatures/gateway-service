@@ -85,6 +85,8 @@ class UsersServiceMixin(ServiceMixin):
             json.loads(request.data)
         )
 
-        self.accounts_rpc.resend_user_token(user_resend_details["email"], user_resend_details["password"])
+        self.accounts_rpc.resend_user_token(
+            user_resend_details["email"], user_resend_details["password"]
+        )
 
         return Response(mimetype="application/json")
