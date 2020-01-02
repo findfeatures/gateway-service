@@ -24,7 +24,7 @@ def redis_send_monitor(monitor_name, data=None):
         data = {}
 
     # add __MONITOR_NAME to data dict
-    if "__MONITOR_NAME" in data:
+    if "__MONITOR_NAME__" in data:
         raise ValueError("__MONITOR_NAME can only be defined once.")
 
     data["__MONITOR_NAME"] = monitor_name

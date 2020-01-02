@@ -1,8 +1,10 @@
+import datetime
 import json
 from functools import partial
 from types import FunctionType
 
 from gateway.dependencies.redis.provider import (
+    check_rate_limit,
     redis_send_monitor,
     store_redis_rate_limit_for_url,
 )
@@ -82,9 +84,27 @@ class HttpEntrypoint(HttpRequestHandler):
             )
 
     def handle_request(self, request):
+        start = datetime.datetime.utcnow()
 
-        redis_send_monitor("API_REQUEST", {"method": request.method, "url": self.url})
+        response = self._handle_request(request)
 
+        duration = datetime.datetime.utcnow() - start
+
+        redis_send_monitor(
+            "API_REQUEST",
+            {
+                "method": request.method,
+                "url": self.url,
+                "duration": duration.total_seconds(),
+                "status": response.status,
+                "status_code": response.status_code,
+                "remote_addr": request.remote_addr,
+            },
+        )
+
+        return response
+
+    def _handle_request(self, request):
         rate_limit_left = 0
         self.request = request
 
