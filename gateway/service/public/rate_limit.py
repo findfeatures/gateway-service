@@ -9,7 +9,7 @@ from werkzeug import Response
 
 
 class RateLimitServiceMixin(ServiceMixin):
-    @http("GET", "/v1/rate-limit", rate_limit=5000, auth_required=True)
+    @http("GET", "/v1/rate-limit", rate_limit=60, auth_required=True)
     def rate_limit(self, request):
         end_timestamp = int(datetime.datetime.utcnow().timestamp() * 1000)
 

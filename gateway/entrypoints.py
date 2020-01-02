@@ -26,7 +26,8 @@ class HttpEntrypoint(HttpRequestHandler):
     Custom HTTPEntrypoint that:
         - Adds CORS support by default to requests
         - Fixes CORS issues with Options requests
-        - Add rate_limit option (rate_limit is per hour on a rolling window)
+        - Add rate_limit and private_rate_limit option
+            (rate_limit is per hour on a rolling window)
         - Add rate_limit headers to requests that are rate limited
         - Add authorization option (requires Authorization header with valid api token)
         - Better exception handling to catch errors we care about and
@@ -62,13 +63,23 @@ class HttpEntrypoint(HttpRequestHandler):
         self.standard_mapped_errors_tuple = tuple(self.standard_mapped_errors.keys())
 
         self.rate_limit = kwargs.get("rate_limit")
+        self.private_rate_limit = kwargs.get("private_rate_limit")
         self.auth_required = kwargs.get("auth_required", False)
 
         if self.rate_limit is not None and not self.auth_required:
-            raise ValueError("if rate limit is defined then auth_required must be true")
+            raise ValueError(
+                "if public rate limit is defined then auth_required must be true"
+            )
 
-        if self.rate_limit:
-            store_redis_rate_limit_for_url(self.url, self.rate_limit)
+        if self.rate_limit and self.private_rate_limit:
+            raise ValueError(
+                "cant define an entrypoint with a public and private rate limit"
+            )
+
+        if self.rate_limit or self.private_rate_limit:
+            store_redis_rate_limit_for_url(
+                self.url, self.rate_limit or self.private_rate_limit
+            )
 
     def handle_request(self, request):
         rate_limit_left = 0
@@ -82,7 +93,7 @@ class HttpEntrypoint(HttpRequestHandler):
                 auth_token = self._get_auth_token_from_header(request)
                 request.auth_token = auth_token
                 if self.rate_limit:
-                    rate_limit_left = self._check_rate_limit(auth_token)
+                    rate_limit_left = self._check_rate_limit(auth_token=auth_token)
             except (
                 UnauthorizedRequest,
                 AuthorizationHeaderMissing,
@@ -92,6 +103,14 @@ class HttpEntrypoint(HttpRequestHandler):
                 response = self._add_rate_limit(response, rate_limit_left)
                 return response
 
+        if self.private_rate_limit:
+            try:
+                rate_limit_left = self._check_rate_limit()
+            except (RateLimitExceeded,) as exc:
+                response = self.response_from_exception(exc)
+
+                response = self._add_rate_limit(response, rate_limit_left)
+                return response
         response = super().handle_request(request)
         response = self._add_rate_limit(response, rate_limit_left)
         return response
@@ -142,14 +161,18 @@ class HttpEntrypoint(HttpRequestHandler):
 
     def _add_rate_limit(self, response, rate_limit_left):
 
-        if self.rate_limit:
-            response.headers.add("X-Rate-Limit", self.rate_limit)
+        if self.rate_limit or self.private_rate_limit:
+            response.headers.add(
+                "X-Rate-Limit", self.rate_limit or self.private_rate_limit
+            )
             response.headers.add("X-Rate-Limit-Left", rate_limit_left)
 
         return response
 
-    def _check_rate_limit(self, auth_token):
-        rate_limit_left = check_rate_limit(auth_token, self.url, self.rate_limit)
+    def _check_rate_limit(self, auth_token="public"):
+        rate_limit_left = check_rate_limit(
+            auth_token, self.url, self.rate_limit or self.private_rate_limit
+        )
         return rate_limit_left
 
     @staticmethod
@@ -159,7 +182,9 @@ class HttpEntrypoint(HttpRequestHandler):
         if not token:
             raise AuthorizationHeaderMissing("Authorization header is required.")
 
-        if token != "insecureToken":
+        # if token == "web-app" then this request is from the web-app
+        # when we change and add actual tokens this would be authenticated here
+        if token != "web-app":
             raise UnauthorizedRequest("Request is unauthorized.")
 
         return token

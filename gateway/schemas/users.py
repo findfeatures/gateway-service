@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields
 
 
-class UserAuthRequest(Schema):
+class AuthUserRequest(Schema):
     email = fields.String(required=True)
     password = fields.String(required=True)
 
@@ -20,6 +20,10 @@ class CreateUserRequest(Schema):
     display_name = fields.String(required=True)
 
 
-class UserTokenRequest(Schema):
+class VerifyUserTokenRequest(Schema):
     email = fields.String(required=True)
     token = fields.String(required=True)
+
+
+class ResendUserTokenEmailRequest(Schema):
+    email = fields.String(required=True)

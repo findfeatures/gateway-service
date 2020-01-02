@@ -21,6 +21,7 @@ def jwt_required():
         def decorator(*args, **kwargs):
             request = args[1]
 
+            # https://security.stackexchange.com/a/205701
             jwt_header = request.headers.get("Authorization")
 
             if not jwt_header:
