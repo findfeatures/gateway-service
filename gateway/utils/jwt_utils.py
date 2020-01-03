@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 import jwt
-from gateway.exceptions.users_exceptions import UserNotAuthorised
+from gateway.exceptions.users import UserNotAuthorised
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from nameko import config
 
@@ -28,7 +28,7 @@ def jwt_required():
             request = args[1]
 
             # https://security.stackexchange.com/a/205701
-            jwt_header = request.headers.get("Authorization")
+            jwt_header = get_jwt_header(request)
 
             if not jwt_header:
                 raise UserNotAuthorised()
@@ -52,3 +52,8 @@ def jwt_required():
         return decorator
 
     return wrapper
+
+
+def get_jwt_header(request):
+    # so we can mock this easier
+    return request.headers.get("Authorization")

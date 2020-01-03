@@ -1,6 +1,7 @@
 import os
 from collections import namedtuple
 
+import mock
 import nameko
 import pytest
 import yaml
@@ -50,3 +51,10 @@ def create_service(container_factory):
         return ServiceMeta(container, *mocked_dependencies, **dependency_map)
 
     return create
+
+
+@pytest.fixture
+def mock_jwt_token(config):
+    with mock.patch("gateway.utils.jwt_utils.jwt.decode") as jwt:
+        with mock.patch("gateway.utils.jwt_utils.get_jwt_header", return_value="test"):
+            yield jwt

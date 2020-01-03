@@ -1,6 +1,6 @@
 import json
 
-from gateway.exceptions.users_exceptions import UserNotAuthorised
+from gateway.exceptions.users import UserNotAuthorised
 from gateway.service import GatewayService
 from mock import ANY, call
 from nameko.containers import ServiceContainer
@@ -9,10 +9,10 @@ from nameko.testing.services import replace_dependencies
 
 def test_verify_user_token_valid(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "accounts_rpc")
+    accounts = replace_dependencies(container, "accounts_rpc")
     container.start()
 
-    users.verify_user.return_value = None
+    accounts.verify_user.return_value = None
 
     email = "test@google.com"
     token = "token"
@@ -21,17 +21,17 @@ def test_verify_user_token_valid(config, web_session):
         "/v1/user/token", data=json.dumps({"email": email, "token": token})
     )
 
-    assert users.verify_user.call_args == call(email, token)
+    assert accounts.verify_user.call_args == call(email, token)
 
     assert response.status_code == 200
 
 
 def test_verify_user_token_invalid(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "accounts_rpc")
+    accounts = replace_dependencies(container, "accounts_rpc")
     container.start()
 
-    users.verify_user.side_effect = UserNotAuthorised()
+    accounts.verify_user.side_effect = UserNotAuthorised()
 
     email = "test@google.com"
     token = "token"
@@ -40,7 +40,7 @@ def test_verify_user_token_invalid(config, web_session):
         "/v1/user/token", data=json.dumps({"email": email, "token": token})
     )
 
-    assert users.verify_user.call_args == call(email, token)
+    assert accounts.verify_user.call_args == call(email, token)
 
     assert response.status_code == 401
     assert response.json() == {"error": "USER_NOT_AUTHORISED", "message": ""}
@@ -48,7 +48,7 @@ def test_verify_user_token_invalid(config, web_session):
 
 def test_verify_user_token_incorrect_schema(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "accounts_rpc")
+    accounts = replace_dependencies(container, "accounts_rpc")
     container.start()
 
     email = "test@google.com"

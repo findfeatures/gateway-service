@@ -1,6 +1,6 @@
 import json
 
-from gateway.exceptions.users_exceptions import UserNotAuthorised
+from gateway.exceptions.users import UserNotAuthorised
 from gateway.service import GatewayService
 from mock import ANY, call
 from nameko.containers import ServiceContainer
@@ -9,10 +9,10 @@ from nameko.testing.services import replace_dependencies
 
 def test_auth_user(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "accounts_rpc")
+    accounts = replace_dependencies(container, "accounts_rpc")
     container.start()
 
-    users.auth_user.return_value = {"JWT": "test"}
+    accounts.auth_user.return_value = {"JWT": "test"}
 
     email = "test@google.com"
     password = "password"
@@ -21,7 +21,7 @@ def test_auth_user(config, web_session):
         "/v1/user/auth", data=json.dumps({"email": email, "password": password})
     )
 
-    assert users.auth_user.call_args == call(email, password)
+    assert accounts.auth_user.call_args == call(email, password)
 
     assert response.status_code == 200
     assert response.json() == {"JWT": "test"}
@@ -29,10 +29,10 @@ def test_auth_user(config, web_session):
 
 def test_auth_user_not_authorised(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "accounts_rpc")
+    accounts = replace_dependencies(container, "accounts_rpc")
     container.start()
 
-    users.auth_user.side_effect = UserNotAuthorised()
+    accounts.auth_user.side_effect = UserNotAuthorised()
 
     response = web_session.post(
         "/v1/user/auth", data=json.dumps({"email": "email", "password": "password"})
@@ -44,10 +44,10 @@ def test_auth_user_not_authorised(config, web_session):
 
 def test_auth_user_incorrect_schema(config, web_session):
     container = ServiceContainer(GatewayService)
-    users = replace_dependencies(container, "accounts_rpc")
+    accounts = replace_dependencies(container, "accounts_rpc")
     container.start()
 
-    users.auth_user.side_effect = UserNotAuthorised()
+    accounts.auth_user.side_effect = UserNotAuthorised()
 
     response = web_session.post("/v1/user/auth", data=json.dumps({}))
 

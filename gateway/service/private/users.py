@@ -1,7 +1,7 @@
 import json
 
 from gateway.entrypoints import http
-from gateway.exceptions.users_exceptions import (
+from gateway.exceptions.users import (
     UserAlreadyExists,
     UserNotAuthorised,
     UserNotVerified,
@@ -79,10 +79,12 @@ class UsersServiceMixin(ServiceMixin):
         return Response(mimetype="application/json")
 
     @http(
-        "POST", "/v1/user/resend-email", expected_exceptions=(), private_rate_limit=15
+        "POST",
+        "/v1/user/resend-email",
+        expected_exceptions=(UserNotAuthorised,),
+        private_rate_limit=15,
     )
     def resend_user_token_email(self, request):
-        # todo: fill in expected_exceptions
         user_resend_details = users_schemas.ResendUserTokenEmailRequest().load(
             json.loads(request.data)
         )

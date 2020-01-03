@@ -13,7 +13,8 @@ from gateway.exceptions.base import (
     RateLimitExceeded,
     UnauthorizedRequest,
 )
-from gateway.exceptions.users_exceptions import (
+from gateway.exceptions.stripe import UnableToCreateCheckoutSession
+from gateway.exceptions.users import (
     UserAlreadyExists,
     UserNotAuthorised,
     UserNotVerified,
@@ -51,6 +52,7 @@ class HttpEntrypoint(HttpRequestHandler):
     mapped_errors = {
         UserAlreadyExists: (409, "USER_ALREADY_EXISTS"),
         UserNotVerified: (418, "USER_NOT_VERIFIED"),
+        UnableToCreateCheckoutSession: (500, "UNABLE_TO_CREATE_CHECKOUT_SESSION"),
     }
 
     def __init__(self, method, url, expected_exceptions=(), **kwargs):
