@@ -10,6 +10,7 @@ def redis_dependency(config):
 
     return dependency
 
+
 # todo: add some more unit tests here for the dependency. Can checkout out the stripe
 # unit tests in the accounts service
 
