@@ -1,4 +1,5 @@
 from gateway.entrypoints import http
+from gateway.schemas import projects as projects_schemas
 from gateway.service.base import ServiceMixin
 from gateway.utils.jwt_utils import jwt_required
 from werkzeug import Response
@@ -13,10 +14,7 @@ class ProjectsServiceMixin(ServiceMixin):
 
         projects = self.accounts_rpc.get_verified_projects(jwt_data["user_id"])
 
-        return Response(mimetype="application/json")
-
-    @jwt_required()
-    @http("POST", "/v1/projects", expected_exceptions=(None,))
-    def create_project(self, request):
-
-        return Response(mimetype="application/json")
+        return Response(
+            projects_schemas.GetProjectsResponse().dumps({"projects": projects}),
+            mimetype="application/json",
+        )
