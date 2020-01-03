@@ -18,7 +18,7 @@ def test_verify_user_token_valid(config, web_session):
     token = "token"
 
     response = web_session.post(
-        "/v1/user-token", data=json.dumps({"email": email, "token": token})
+        "/v1/user/token", data=json.dumps({"email": email, "token": token})
     )
 
     assert users.verify_user.call_args == call(email, token)
@@ -37,7 +37,7 @@ def test_verify_user_token_invalid(config, web_session):
     token = "token"
 
     response = web_session.post(
-        "/v1/user-token", data=json.dumps({"email": email, "token": token})
+        "/v1/user/token", data=json.dumps({"email": email, "token": token})
     )
 
     assert users.verify_user.call_args == call(email, token)
@@ -53,7 +53,7 @@ def test_verify_user_token_incorrect_schema(config, web_session):
 
     email = "test@google.com"
 
-    response = web_session.post("/v1/user-token", data=json.dumps({"email": email}))
+    response = web_session.post("/v1/user/token", data=json.dumps({"email": email}))
 
     assert response.status_code == 400
     assert response.json() == {"error": "VALIDATION_ERROR", "message": ANY}

@@ -62,7 +62,7 @@ class UsersServiceMixin(ServiceMixin):
 
     @http(
         "POST",
-        "/v1/user-token",
+        "/v1/user/token",
         expected_exceptions=(UserNotAuthorised,),
         private_rate_limit=60,
     )
@@ -78,7 +78,9 @@ class UsersServiceMixin(ServiceMixin):
 
         return Response(mimetype="application/json")
 
-    @http("POST", "/v1/resend-email", expected_exceptions=(), private_rate_limit=15)
+    @http(
+        "POST", "/v1/user/resend-email", expected_exceptions=(), private_rate_limit=15
+    )
     def resend_user_token_email(self, request):
         # todo: fill in expected_exceptions
         user_resend_details = users_schemas.ResendUserTokenEmailRequest().load(

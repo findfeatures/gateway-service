@@ -27,6 +27,7 @@ setuptools.setup(
         "redis==3.3.11",
         "walrus==0.8.0",
         "passlib==1.7.2",
+        "stripe==2.41.1",
     ],
     extras_require={
         "dev": [

@@ -9,7 +9,7 @@ from nameko import config as nameko_config
 class FakeService:
     @jwt_required()
     def fake_function(self, request):
-        return "I worked"
+        return request.jwt_data
 
 
 def test_jwt_required_works_correctly_on_class(config):
@@ -26,7 +26,7 @@ def test_jwt_required_works_correctly_on_class(config):
 
     result = service.fake_function(mock_request)
 
-    assert result == "I worked"
+    assert result == {"test": "123"}
 
 
 def test_jwt_required_raises_error_if_missing_header():
