@@ -22,11 +22,11 @@ class StripeServiceMixin(ServiceMixin):
         )
 
         jwt_data = request.jwt_data
-
         session_id = self.accounts_rpc.create_stripe_checkout_session(
             {
                 "user_id": jwt_data["user_id"],
                 "email": jwt_data["email"],
+                "project_id": checkout_session_details["project_id"],
                 "plan": checkout_session_details["plan"],
                 "success_url": checkout_session_details["success_url"],
                 "cancel_url": checkout_session_details["cancel_url"],

@@ -9,6 +9,7 @@ from gateway.exceptions.users import (
 from gateway.schemas import users as users_schemas
 from gateway.service.base import ServiceMixin
 from werkzeug import Response
+from gateway.utils.jwt_utils import jwt_required
 
 
 class UsersServiceMixin(ServiceMixin):
@@ -94,3 +95,22 @@ class UsersServiceMixin(ServiceMixin):
         )
 
         return Response(mimetype="application/json")
+
+    @jwt_required()
+    @http("GET", "/v1/user/notifications")
+    def get_user_notifications(self, request):
+        import time
+
+        time.sleep(1)
+        raise ValueError()
+        jwt_data = request.jwt_data
+
+        # todo: get user notifications!!!
+        notifications = []
+
+        return Response(
+            users_schemas.GetUserNotificationsResponse().dumps(
+                {"notifications": notifications}
+            ),
+            mimetype="application/json",
+        )

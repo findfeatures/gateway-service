@@ -3,13 +3,14 @@ from gateway.schemas import projects as projects_schemas
 from gateway.service.base import ServiceMixin
 from gateway.utils.jwt_utils import jwt_required
 from werkzeug import Response
+import time
 
 
 class ProjectsServiceMixin(ServiceMixin):
     @jwt_required()
     @http("GET", "/v1/projects")
     def get_projects(self, request):
-
+        time.sleep(3)
         jwt_data = request.jwt_data
 
         projects = self.accounts_rpc.get_verified_projects(jwt_data["user_id"])

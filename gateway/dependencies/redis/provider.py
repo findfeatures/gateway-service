@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+import walrus
 from gateway.dependencies.redis.lua_scripts import RATE_LIMIT
 from gateway.dependencies.redis.utils import get_redis_connection, hash_identifier
 from gateway.exceptions.base import RateLimitExceeded
@@ -66,10 +67,10 @@ class Redis(DependencyProvider):
         self.options.update(options)
 
     def setup(self):
-        self.redis_uri = config.get("REDIS_URL")
+        self.redis_uri = config.get("REDIS_URL", "redis://127.0.0.1:6379/0")
 
     def start(self):
-        self.client = get_redis_connection(self.redis_uri, **self.options)
+        self.client = walrus.Database().from_url(self.redis_uri, **self.options)
 
     def stop(self):
         self.client = None

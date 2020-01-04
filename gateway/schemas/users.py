@@ -28,3 +28,11 @@ class VerifyUserTokenRequest(Schema):
 class ResendUserTokenEmailRequest(Schema):
     email = fields.String(required=True)
     password = fields.String(required=True)
+
+
+class GetUserNotificationResponse(Schema):
+    pass
+
+
+class GetUserNotificationsResponse(Schema):
+    notifications = fields.Nested(GetUserNotificationResponse, many=True, required=True)

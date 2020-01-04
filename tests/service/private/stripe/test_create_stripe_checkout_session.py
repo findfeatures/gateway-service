@@ -2,7 +2,7 @@ import json
 
 from gateway.exceptions.stripe import UnableToCreateCheckoutSession
 from gateway.service import GatewayService
-from mock import ANY, call
+from mock import call
 from nameko.containers import ServiceContainer
 from nameko.testing.services import replace_dependencies
 
@@ -26,7 +26,12 @@ def test_create_stripe_checkout_session_successful(config, web_session, mock_jwt
     response = web_session.post(
         "/v1/stripe/checkout-session",
         data=json.dumps(
-            {"plan": plan, "success_url": success_url, "cancel_url": cancel_url}
+            {
+                "plan": plan,
+                "success_url": success_url,
+                "cancel_url": cancel_url,
+                "project_id": 1,
+            }
         ),
     )
 
@@ -37,6 +42,7 @@ def test_create_stripe_checkout_session_successful(config, web_session, mock_jwt
             "plan": plan,
             "success_url": success_url,
             "cancel_url": cancel_url,
+            "project_id": 1,
         }
     )
 
@@ -66,7 +72,12 @@ def test_create_stripe_checkout_session_unsuccessful(
     response = web_session.post(
         "/v1/stripe/checkout-session",
         data=json.dumps(
-            {"plan": plan, "success_url": success_url, "cancel_url": cancel_url}
+            {
+                "plan": plan,
+                "success_url": success_url,
+                "cancel_url": cancel_url,
+                "project_id": 1,
+            }
         ),
     )
 
@@ -77,6 +88,7 @@ def test_create_stripe_checkout_session_unsuccessful(
             "plan": plan,
             "success_url": success_url,
             "cancel_url": cancel_url,
+            "project_id": 1,
         }
     )
 
