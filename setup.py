@@ -28,6 +28,7 @@ setuptools.setup(
         "walrus==0.8.0",
         "passlib==1.7.2",
         "stripe==2.41.1",
+        "socketio==0.2.1"
     ],
     extras_require={
         "dev": [

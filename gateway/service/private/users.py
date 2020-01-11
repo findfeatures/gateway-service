@@ -102,7 +102,7 @@ class UsersServiceMixin(ServiceMixin):
         import time
 
         time.sleep(1)
-        raise ValueError()
+
         jwt_data = request.jwt_data
 
         # todo: get user notifications!!!
