@@ -9,8 +9,10 @@ class ProjectsServiceMixin(ServiceMixin):
     @jwt_required()
     @http("GET", "/v1/projects")
     def get_projects(self, request):
+
         import time
-        time.sleep(2)
+        time.sleep(1)
+
         jwt_data = request.jwt_data
 
         projects = self.accounts_rpc.get_verified_projects(jwt_data["user_id"])
